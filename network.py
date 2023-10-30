@@ -454,6 +454,9 @@ class UNet128(nn.Module):
         # process clip embeddings
         self.attn_pool_layer = AttentionPool1d(pose_embed_len_dim)
 
+        # dropout layers for conditioning inputs
+        self.dropout = nn.Dropout(p=.1)
+
         # =========================person UNet================================
         # initial image embedding size 128x128 and 6 channels(concatenate
         # rgb agnostic image and noise)
@@ -569,6 +572,10 @@ class UNet128(nn.Module):
 
         # concat pose embeddings
         pose_embeddings = torch.concat((person_pose_embedding, garment_pose_embedding), dim=1)
+        # use conditioning dropout
+        pose_embeddings = self.dropout(pose_embeddings)
+        zt = self.dropout(zt)
+        ic = self.dropout(ic)
 
         # get clip embeddings
         clip_embedding = self.attn_pool_layer(pose_embeddings, time_step, noise_level)
@@ -656,6 +663,9 @@ class UNet64(nn.Module):
 
         # process clip embeddings
         self.attn_pool_layer = AttentionPool1d(pose_embed_len_dim)
+
+        # dropout layers for conditioning inputs
+        self.dropout = nn.Dropout(p=.1)
 
         # =========================person UNet================================
         # initial image embedding size 128x128 and 6 channels(concatenate
@@ -771,6 +781,11 @@ class UNet64(nn.Module):
 
         # concat pose embeddings
         pose_embeddings = torch.concat((person_pose_embedding, garment_pose_embedding), dim=1)
+
+        # use conditioning dropout
+        pose_embeddings = self.dropout(pose_embeddings)
+        zt = self.dropout(zt)
+        ic = self.dropout(ic)
 
         # get clip embeddings
         clip_embedding = self.attn_pool_layer(pose_embeddings, time_step, noise_level)
